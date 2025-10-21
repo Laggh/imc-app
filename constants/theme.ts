@@ -5,25 +5,38 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Cores verdes para o app de IMC
+const tintColorLight = '#10B981'; // Verde principal
+const tintColorDark = '#86EFAC'; // Verde claro
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
+    text: '#1F2937',
+    background: '#F0FDF4',
     tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    icon: '#059669',
+    tabIconDefault: '#6B7280',
+    tabIconSelected: '#10B981',
+    primary: '#10B981',
+    primaryDark: '#059669',
+    primaryLight: '#D1FAE5',
+    success: '#10B981',
+    warning: '#F59E0B',
+    danger: '#EF4444',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
+    text: '#F0FDF4',
+    background: '#064E3B',
     tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    icon: '#10B981',
+    tabIconDefault: '#A3E635',
+    tabIconSelected: '#86EFAC',
+    primary: '#10B981',
+    primaryDark: '#059669',
+    primaryLight: '#D1FAE5',
+    success: '#10B981',
+    warning: '#F59E0B',
+    danger: '#EF4444',
   },
 };
 
