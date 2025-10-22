@@ -6,9 +6,8 @@ import { IMCRecord } from '@/types';
 import { getIMCColor } from '@/utils/imc-calculator';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-    Alert,
     FlatList,
     SafeAreaView,
     StyleSheet,
@@ -23,40 +22,67 @@ export default function HistoryScreen() {
   const { getAllRecords, deleteRecord } = useIMC();
   const [records, setRecords] = useState<IMCRecord[]>([]);
 
+  const loadRecords = useCallback(() => {
+    console.log('[History] Carregando registros...');
+    const allRecords = getAllRecords();
+    console.log('[History] Registros carregados:', allRecords.length);
+    console.log('[History] Dados dos registros:', allRecords);
+    setRecords(allRecords);
+  }, [getAllRecords]);
+
   useFocusEffect(
     React.useCallback(() => {
-      setRecords(getAllRecords());
-    }, [getAllRecords])
+      loadRecords();
+    }, [loadRecords])
   );
 
   const handleDelete = (id: string) => {
-    Alert.alert('Deletar', 'Você tem certeza que deseja deletar este registro?', [
-      { text: 'Cancelar', onPress: () => {} },
-      {
-        text: 'Deletar',
-        onPress: () => {
-          deleteRecord(id);
-          setRecords(getAllRecords());
-        },
-        style: 'destructive',
-      },
-    ]);
+    console.log('[History] Tentando deletar registro com ID:', id);
+    const confirmed = window.confirm('Você tem certeza que deseja deletar este registro?');
+    
+    if (confirmed) {
+      console.log('[History] Usuário confirmou a deleção');
+      console.log('[History] Executando deleteRecord com ID:', id);
+      deleteRecord(id);
+      console.log('[History] deleteRecord executado, chamando loadRecords');
+      setTimeout(() => {
+        console.log('[History] Timeout 500ms chamando loadRecords');
+        loadRecords();
+        console.log('[History] loadRecords executado');
+      }, 500);
+    } else {
+      console.log('[History] Deleção cancelada pelo usuário');
+    }
   };
 
   const getDaysAgo = (dateString: string): string => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const [day, month, year] = dateString.split('/').map(Number);
-    const recordDate = new Date(year, month - 1, day);
-    recordDate.setHours(0, 0, 0, 0);
-    
-    const diffTime = today.getTime() - recordDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Hoje';
-    if (diffDays === 1) return 'Ontem';
-    return `Há ${diffDays} dias`;
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Formato da data: "DD/MM/YYYY, HH:MM:SS"
+      // Extrai apenas "DD/MM/YYYY"
+      const datePart = dateString.split(',')[0].trim();
+      const [day, month, year] = datePart.split('/').map(Number);
+      
+      console.log('[History] getDaysAgo - datePart:', datePart, 'day:', day, 'month:', month, 'year:', year);
+      
+      const recordDate = new Date(year, month - 1, day);
+      recordDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = today.getTime() - recordDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      console.log('[History] getDaysAgo - diffDays:', diffDays);
+      
+      if (diffDays === 0) return 'Hoje';
+      if (diffDays === 1) return 'Ontem';
+      if (diffDays < 7) return 'Essa semana';
+      return `Há ${diffDays} dias`;
+    } catch (error) {
+      console.error('[History] Erro em getDaysAgo:', error);
+      return 'Data inválida';
+    }
   };
 
   const renderRecord = ({ item }: { item: IMCRecord }) => (
@@ -81,7 +107,11 @@ export default function HistoryScreen() {
           </Text>
         </View>
         <TouchableOpacity
-          onPress={() => handleDelete(item.id)}
+          onPress={() => {
+            console.log('[History] TouchableOpacity pressionado com ID:', item.id);
+            handleDelete(item.id);
+          }}
+          activeOpacity={0.6}
           style={styles.deleteButton}
         >
           <Ionicons name="trash-outline" size={20} color="#EF4444" />
@@ -117,7 +147,7 @@ export default function HistoryScreen() {
               },
             ]}
           >
-            {item.weightDifference > 0 ? '+' : ''}{item.weightDifference}kg
+            {item.weightDifference > 0 ? '+' : ''}{item.weightDifference.toFixed(2)}kg ({item.weightDifference > 0 ? 'acima' : 'abaixo'})
           </Text>
         </View>
         <View style={styles.detailRow}>
@@ -239,6 +269,10 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   recordDetails: {
     borderTopWidth: 1,

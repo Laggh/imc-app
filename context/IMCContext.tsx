@@ -32,11 +32,15 @@ export const IMCProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const saveRecordsToStorage = async (newRecords: IMCRecord[]) => {
+  const saveRecordsToStorage = (newRecords: IMCRecord[]) => {
     try {
+      console.log('[IMCContext] Salvando', newRecords.length, 'registros no localStorage');
       localStorage.setItem('imc_records', JSON.stringify(newRecords));
+      console.log('[IMCContext] Registros salvos com sucesso no localStorage');
+      return true;
     } catch (error) {
       console.error('Erro ao salvar registros:', error);
+      return false;
     }
   };
 
@@ -68,16 +72,31 @@ export const IMCProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const getAllRecords = (): IMCRecord[] => {
-    return [...records].reverse(); // Retorna em ordem reversa (mais recente primeiro)
+    console.log('[IMCContext] getAllRecords chamado, registros disponíveis:', records.length);
+    const result = [...records].reverse(); // Retorna em ordem reversa (mais recente primeiro)
+    console.log('[IMCContext] Retornando registros revertidos:', result.length);
+    return result;
   };
 
   const deleteRecord = (id: string) => {
+    console.log('[IMCContext] Deletando registro com ID:', id);
+    console.log('[IMCContext] Total de registros antes:', records.length);
     const filtered = records.filter(record => record.id !== id);
-    setRecords(filtered);
-    if (currentRecord?.id === id) {
-      setCurrentRecord(filtered.length > 0 ? filtered[filtered.length - 1] : null);
+    console.log('[IMCContext] Total de registros depois:', filtered.length);
+    
+    // Salva no storage ANTES de atualizar o state
+    const saved = saveRecordsToStorage(filtered);
+    
+    if (saved) {
+      // Só atualiza o state APÓS confirmar salvação no storage
+      setRecords(filtered);
+      if (currentRecord?.id === id) {
+        setCurrentRecord(filtered.length > 0 ? filtered[filtered.length - 1] : null);
+      }
+      console.log('[IMCContext] Registro deletado e estado atualizado');
+    } else {
+      console.error('[IMCContext] Falha ao salvar no storage, operação cancelada');
     }
-    saveRecordsToStorage(filtered);
   };
 
   const loadRecords = async () => {

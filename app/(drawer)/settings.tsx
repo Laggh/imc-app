@@ -149,11 +149,12 @@ const styles = StyleSheet.create({
   },
   themeGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     gap: 12,
+    justifyContent: 'space-between',
   },
   themeOption: {
-    flex: 1,
+    width: '31%',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

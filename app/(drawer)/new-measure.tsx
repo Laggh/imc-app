@@ -53,6 +53,8 @@ export default function NewMeasureScreen() {
     const category = getIMCCategory(imc);
     const weightDiff = calculateWeightDifference(w, h);
 
+    console.log('[NewMeasure] Cálculo: w=', w, 'h=', h, 'imc=', imc, 'weightDiff=', weightDiff);
+
     setPreview({
       weight: w,
       height: h,

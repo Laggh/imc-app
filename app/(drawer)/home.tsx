@@ -80,7 +80,10 @@ export default function HomeScreen() {
                   {Math.abs(currentRecord.weightDifference).toFixed(2)}kg
                 </Text>
                 <Text style={[styles.infoTextSuffix, { color: theme.colors.text }]}>
-                  {currentRecord.weightDifference > 0 ? 'acima' : 'abaixo'} do peso ideal
+                  {(() => {
+                    console.log('[Home] weightDifference:', currentRecord.weightDifference);
+                    return currentRecord.weightDifference > 0 ? 'acima' : 'abaixo';
+                  })()} do peso ideal
                 </Text>
               </View>
             </Card>
