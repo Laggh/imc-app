@@ -2,13 +2,15 @@ import { Card } from '@/components/ui/card';
 import { useDrawer } from '@/context/DrawerContext';
 import { useTheme } from '@/context/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Image,
+  Linking,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function AboutScreen() {
@@ -56,12 +58,86 @@ export default function AboutScreen() {
 
         <Card style={styles.card}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+            Desenvolvedor
+          </Text>
+          <View style={styles.profileContainer}>
+            <Image
+              source={require('@/assets/images/renan.png')}
+              style={styles.profileImage}
+            />
+            <Text style={[styles.developerName, { color: theme.colors.text }]}>
+              Renan Andrades
+            </Text>
+          </View>
+          
+          <View style={styles.educationSection}>
+            <Text style={[styles.educationLabel, { color: theme.colors.icon }]}>
+              Curso
+            </Text>
+            <Text style={[styles.educationValue, { color: theme.colors.text }]}>
+              3º ano Desenvolvimento de Sistemas 2025
+            </Text>
+            <Text style={[styles.educationValue, { color: theme.colors.text }]}>
+              Etec João Belarmino
+            </Text>
+          </View>
+
+          <View style={styles.divider} />
+          
+          <View style={styles.contactSection}>
+            <TouchableOpacity
+              style={styles.contactItem}
+              onPress={() => Linking.openURL('mailto:renanandrades2008@gmail.com')}
+            >
+              <Ionicons
+                name="mail"
+                size={18}
+                color={theme.colors.primary}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={[styles.contactLink, { color: theme.colors.primary }]}>
+                renanandrades2008@gmail.com
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.contactItem}
+              onPress={() => Linking.openURL('https://www.linkedin.com/in/renan-andrade-dos-santos-40ba09326')}
+            >
+              <Ionicons
+                name="logo-linkedin"
+                size={18}
+                color={theme.colors.primary}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={[styles.contactLink, { color: theme.colors.primary }]}>
+                LinkedIn
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.contactItem}
+              onPress={() => Linking.openURL('https://github.com/Laggh')}
+            >
+              <Ionicons
+                name="logo-github"
+                size={18}
+                color={theme.colors.primary}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={[styles.contactLink, { color: theme.colors.primary }]}>
+                GitHub: Laggh
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Card>
+
+        <Card style={styles.card}>
+          <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
             Sobre o Aplicativo
           </Text>
           <Text style={[styles.description, { color: theme.colors.text }]}>
-            Este aplicativo foi desenvolvido para ajudá-lo a calcular e
-            acompanhar seu Índice de Massa Corporal (IMC) de forma fácil e
-            prática.
+            Calculadora de IMC é um aplicativo mobile desenvolvido como auxílio pedagógico para demonstrar conceitos práticos de desenvolvimento de sistemas. Permite calcular e acompanhar seu Índice de Massa Corporal (IMC) de forma fácil, prática e intuitiva.
           </Text>
         </Card>
 
@@ -117,34 +193,11 @@ export default function AboutScreen() {
 
         <Card style={styles.card}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-            Informações Pessoais
+            Sobre o Projeto
           </Text>
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: theme.colors.icon }]}>
-              Desenvolvedor
-            </Text>
-            <Text style={[styles.infoValue, { color: theme.colors.text }]}>
-              Seu Nome
-            </Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: theme.colors.icon }]}>
-              Email
-            </Text>
-            <Text style={[styles.infoValue, { color: theme.colors.text }]}>
-              seu.email@exemplo.com
-            </Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: theme.colors.icon }]}>
-              Website
-            </Text>
-            <Text style={[styles.infoValue, { color: theme.colors.primary }]}>
-              www.seusite.com
-            </Text>
-          </View>
+          <Text style={[styles.description, { color: theme.colors.text }]}>
+            Este é um projeto desenvolvido como auxílio à professora <Text style={styles.bold}>Renata</Text>, no contexto da formação em Desenvolvimento de Sistemas. É um projeto <Text style={styles.bold}>sem fins lucrativos</Text>, dedicado a auxiliar na educação e prática de desenvolvimento de aplicações móveis.
+          </Text>
         </Card>
 
         <Card style={styles.card}>
@@ -223,6 +276,48 @@ const styles = StyleSheet.create({
     fontSize: 14,
     flex: 1,
   },
+  profileContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 12,
+  },
+  developerName: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
+  educationSection: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  educationLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  educationValue: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 4,
+  },
+  contactSection: {
+    marginTop: 12,
+  },
+  contactItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  contactLink: {
+    fontSize: 13,
+    fontWeight: '500',
+    flex: 1,
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -246,6 +341,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     fontStyle: 'italic',
+  },
+  bold: {
+    fontWeight: '700',
   },
   footer: {
     alignItems: 'center',

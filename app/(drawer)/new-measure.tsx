@@ -3,6 +3,7 @@ import { CustomInput } from '@/components/ui/custom-input';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { useIMC } from '@/context/IMCContext';
 import { useTheme } from '@/context/ThemeContext';
+import { showErrorAlert, showSuccessAlert } from '@/utils/alert-helper';
 import {
     calculateIMC,
     calculateWeightDifference,
@@ -13,7 +14,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -32,7 +32,7 @@ export default function NewMeasureScreen() {
 
   const handleCalculate = () => {
     if (!weight || !height) {
-      Alert.alert('Erro', 'Por favor, preencha peso e altura');
+      showErrorAlert('Por favor, preencha peso e altura');
       return;
     }
 
@@ -40,12 +40,12 @@ export default function NewMeasureScreen() {
     const h = parseFloat(height);
 
     if (w <= 0 || h <= 0) {
-      Alert.alert('Erro', 'Peso e altura devem ser maiores que 0');
+      showErrorAlert('Peso e altura devem ser maiores que 0');
       return;
     }
 
     if (h > 3) {
-      Alert.alert('Erro', 'Altura parece estar incorreta. Use valores em metros (ex: 1.75)');
+      showErrorAlert('Altura parece estar incorreta. Use valores em metros (ex: 1.75)');
       return;
     }
 
@@ -72,31 +72,29 @@ export default function NewMeasureScreen() {
 
     try {
       addRecord(preview.weight, preview.height);
-      Alert.alert('Sucesso', 'Medida salva com sucesso!', [
-        {
-          text: 'Voltar',
-          onPress: () => {
-            router.back();
-          },
-        },
-      ]);
+      showSuccessAlert('Medida salva com sucesso!');
       setWeight('');
       setHeight('');
       setPreview(null);
+      router.push('/(drawer)/home');
     } catch (error) {
-      Alert.alert('Erro', 'Erro ao salvar medida');
+      showErrorAlert('Erro ao salvar medida');
     }
   };
 
   const getWeightMessage = (): string => {
     if (!preview) return '';
     const diff = preview.weightDifference;
-    if (diff > 0) {
-      return `você está ${formatNumber(diff)}kg acima do peso ideal`;
-    } else if (diff < 0) {
-      return `você está ${formatNumber(Math.abs(diff))}kg abaixo do peso ideal`;
+    const imc = preview.imc;
+    
+    if (imc >= 25) {
+      // Acima do peso: mostra quanto precisa descer para chegar a IMC 25
+      return `precisa perder ${formatNumber(Math.abs(diff))}kg para ter IMC 25`;
+    } else if (imc < 20) {
+      // Abaixo do peso: mostra quanto precisa ganhar para chegar a IMC 20
+      return `precisa ganhar ${formatNumber(Math.abs(diff))}kg para ter IMC 20`;
     }
-    return 'seu peso está ideal!';
+    return 'seu peso está na faixa ideal (IMC 20-25)!';
   };
 
   return (
@@ -189,7 +187,7 @@ export default function NewMeasureScreen() {
         {preview && (
           <PrimaryButton
             label="Voltar"
-            onPress={() => setPreview(null)}
+            onPress={() => router.push('/(drawer)/home')}
           />
         )}
       </View>

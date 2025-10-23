@@ -78,25 +78,33 @@ export const IMCProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return result;
   };
 
-  const deleteRecord = (id: string) => {
-    console.log('[IMCContext] Deletando registro com ID:', id);
-    console.log('[IMCContext] Total de registros antes:', records.length);
-    const filtered = records.filter(record => record.id !== id);
-    console.log('[IMCContext] Total de registros depois:', filtered.length);
-    
-    // Salva no storage ANTES de atualizar o state
-    const saved = saveRecordsToStorage(filtered);
-    
-    if (saved) {
-      // Só atualiza o state APÓS confirmar salvação no storage
-      setRecords(filtered);
-      if (currentRecord?.id === id) {
-        setCurrentRecord(filtered.length > 0 ? filtered[filtered.length - 1] : null);
+  const deleteRecord = async (id: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      console.log('[IMCContext] Deletando registro com ID:', id);
+      console.log('[IMCContext] Total de registros antes:', records.length);
+      const filtered = records.filter(record => record.id !== id);
+      console.log('[IMCContext] Total de registros depois:', filtered.length);
+      
+      // Salva no storage
+      const saved = saveRecordsToStorage(filtered);
+      
+      if (saved) {
+        // Atualiza o state e resolve a promise após
+        setRecords(filtered);
+        if (currentRecord?.id === id) {
+          setCurrentRecord(filtered.length > 0 ? filtered[filtered.length - 1] : null);
+        }
+        console.log('[IMCContext] Registro deletado e estado atualizado');
+        
+        // Aguarda um tick do React para garantir que o state foi propagado
+        setTimeout(() => {
+          resolve(true);
+        }, 0);
+      } else {
+        console.error('[IMCContext] Falha ao salvar no storage, operação cancelada');
+        resolve(false);
       }
-      console.log('[IMCContext] Registro deletado e estado atualizado');
-    } else {
-      console.error('[IMCContext] Falha ao salvar no storage, operação cancelada');
-    }
+    });
   };
 
   const loadRecords = async () => {

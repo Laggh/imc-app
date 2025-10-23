@@ -13,15 +13,29 @@ export const getIMCCategory = (imc: number): string => {
   return 'Obesidade Grau III';
 };
 
-// Calcula o peso ideal baseado na altura (IMC ideal = 22.5)
-export const calculateIdealWeight = (height: number): number => {
-  const idealIMC = 22.5;
-  return height * height * idealIMC;
+// Calcula o peso ideal baseado na altura e IMC atual
+// Se IMC >= 25: calcula com IMC 25 (quanto falta para descer)
+// Se IMC < 20: calcula com IMC 20 (quanto falta para subir)
+// Se 20 <= IMC < 25: está na faixa ideal
+export const calculateIdealWeight = (height: number, weight: number): number => {
+  const currentIMC = calculateIMC(weight, height);
+  
+  if (currentIMC >= 25) {
+    // Acima do peso: calcula com IMC 25
+    return height * height * 25;
+  } else if (currentIMC < 20) {
+    // Abaixo do peso: calcula com IMC 20
+    return height * height * 20;
+  } else {
+    // Na faixa ideal: retorna o peso atual
+    return weight;
+  }
 };
 
 // Calcula a diferença de peso (positivo = acima, negativo = abaixo)
+// Também fornece informação sobre qual IMC limite está sendo usado
 export const calculateWeightDifference = (weight: number, height: number): number => {
-  const idealWeight = calculateIdealWeight(height);
+  const idealWeight = calculateIdealWeight(height, weight);
   return weight - idealWeight;
 };
 

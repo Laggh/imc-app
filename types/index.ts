@@ -14,6 +14,6 @@ export interface IMCContextType {
   addRecord: (weight: number, height: number) => IMCRecord;
   getLastRecord: () => IMCRecord | null;
   getAllRecords: () => IMCRecord[];
-  deleteRecord: (id: string) => void;
+  deleteRecord: (id: string) => Promise<boolean>;
   loadRecords: () => Promise<void>;
 }

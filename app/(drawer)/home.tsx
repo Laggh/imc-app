@@ -63,27 +63,29 @@ export default function HomeScreen() {
 
             <Card style={styles.infoCard}>
               <Text style={[styles.infoTextLabel, { color: theme.colors.icon }]}>
-                Peso Ideal
+                Status de Peso
               </Text>
               <View style={styles.infoTextContainer}>
-                <Text style={[styles.infoTextPrefix, { color: theme.colors.text }]}>
-                  Você está
-                </Text>
                 <Text
                   style={[
                     styles.infoTextBold,
                     {
-                      color: currentRecord.weightDifference > 0 ? '#EF4444' : '#10B981',
+                      color: currentRecord.imc >= 25 ? '#EF4444' : currentRecord.imc < 20 ? '#3B82F6' : '#10B981',
                     },
                   ]}
                 >
-                  {Math.abs(currentRecord.weightDifference).toFixed(2)}kg
+                  {currentRecord.imc >= 25 
+                    ? `Perder ${Math.abs(currentRecord.weightDifference).toFixed(2)}kg`
+                    : currentRecord.imc < 20 
+                    ? `Ganhar ${Math.abs(currentRecord.weightDifference).toFixed(2)}kg`
+                    : 'Na faixa ideal'}
                 </Text>
                 <Text style={[styles.infoTextSuffix, { color: theme.colors.text }]}>
-                  {(() => {
-                    console.log('[Home] weightDifference:', currentRecord.weightDifference);
-                    return currentRecord.weightDifference > 0 ? 'acima' : 'abaixo';
-                  })()} do peso ideal
+                  {currentRecord.imc >= 25 
+                    ? 'para ter IMC 25'
+                    : currentRecord.imc < 20 
+                    ? 'para ter IMC 20'
+                    : '(IMC 20-25)'}
                 </Text>
               </View>
             </Card>

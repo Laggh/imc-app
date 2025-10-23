@@ -3,10 +3,11 @@ import { useDrawer } from '@/context/DrawerContext';
 import { useIMC } from '@/context/IMCContext';
 import { useTheme } from '@/context/ThemeContext';
 import { IMCRecord } from '@/types';
+import { showConfirmAlert } from '@/utils/alert-helper';
 import { getIMCColor } from '@/utils/imc-calculator';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     FlatList,
     SafeAreaView,
@@ -19,7 +20,7 @@ import {
 export default function HistoryScreen() {
   const { openDrawer } = useDrawer();
   const { theme } = useTheme();
-  const { getAllRecords, deleteRecord } = useIMC();
+  const { getAllRecords, deleteRecord, records: contextRecords } = useIMC();
   const [records, setRecords] = useState<IMCRecord[]>([]);
 
   const loadRecords = useCallback(() => {
@@ -36,23 +37,36 @@ export default function HistoryScreen() {
     }, [loadRecords])
   );
 
+  // Sincroniza o estado local com o contexto quando contextRecords mudar
+  React.useEffect(() => {
+    console.log('[History] contextRecords mudou, atualizando state local');
+    const allRecords = getAllRecords();
+    setRecords(allRecords);
+  }, [contextRecords, getAllRecords]);
+
   const handleDelete = (id: string) => {
     console.log('[History] Tentando deletar registro com ID:', id);
-    const confirmed = window.confirm('Você tem certeza que deseja deletar este registro?');
-    
-    if (confirmed) {
-      console.log('[History] Usuário confirmou a deleção');
-      console.log('[History] Executando deleteRecord com ID:', id);
-      deleteRecord(id);
-      console.log('[History] deleteRecord executado, chamando loadRecords');
-      setTimeout(() => {
-        console.log('[History] Timeout 500ms chamando loadRecords');
-        loadRecords();
-        console.log('[History] loadRecords executado');
-      }, 500);
-    } else {
-      console.log('[History] Deleção cancelada pelo usuário');
-    }
+    showConfirmAlert(
+      'Confirmar exclusão',
+      'Você tem certeza que deseja deletar este registro?',
+      async () => {
+        console.log('[History] Usuário confirmou a deleção');
+        try {
+          console.log('[History] Executando deleteRecord com ID:', id);
+          const success = await deleteRecord(id);
+          
+          if (success) {
+            console.log('[History] Registro deletado com sucesso');
+            // O useEffect vai sincronizar automaticamente quando contextRecords mudar
+          }
+        } catch (error) {
+          console.error('[History] Erro ao deletar registro:', error);
+        }
+      },
+      () => {
+        console.log('[History] Deleção cancelada pelo usuário');
+      }
+    );
   };
 
   const getDaysAgo = (dateString: string): string => {
@@ -137,17 +151,21 @@ export default function HistoryScreen() {
         </View>
         <View style={styles.detailRow}>
           <Text style={[styles.detailLabel, { color: theme.colors.icon }]}>
-            Peso ideal
+            Status de Peso
           </Text>
           <Text
             style={[
               styles.detailValue,
               {
-                color: item.weightDifference > 0 ? '#EF4444' : '#10B981',
+                color: item.imc >= 25 ? '#EF4444' : item.imc < 20 ? '#3B82F6' : '#10B981',
               },
             ]}
           >
-            {item.weightDifference > 0 ? '+' : ''}{item.weightDifference.toFixed(2)}kg ({item.weightDifference > 0 ? 'acima' : 'abaixo'})
+            {item.imc >= 25 
+              ? `perder ${Math.abs(item.weightDifference).toFixed(2)}kg para IMC 25`
+              : item.imc < 20 
+              ? `ganhar ${Math.abs(item.weightDifference).toFixed(2)}kg para IMC 20`
+              : 'Na faixa ideal (IMC 20-25)'}
           </Text>
         </View>
         <View style={styles.detailRow}>
